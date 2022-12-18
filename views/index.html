@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment</title>
+    <link rel="stylesheet" href="/css/main.css">
+    
+</head>
+
+<body>
+    <div class="container">
+    <div class="card-body">
+    <form onsubmit="UserDetails(event)" action="/" method="POST">
+        <h1 style="color:rgb(12, 13, 14)">Book Your Appointment</h1>
+        <label>Name</label><br>
+        <input id="name" type="text" Name="name" required /><br>
+        <label>Email Address</label><br>
+        <input id="email" type="text" Name="email" required /><br>
+        <label>Phone Number</label><br>
+        <input id="phonenumber" type="number" Name="number" required /><br><br>
+        <button style="color:rgb(35, 137, 142)">Add User</button>
+    </form>
+    </div>
+</div>
+    <ul id="NumberOfUsers"></ul>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.1/axios.min.js"></script>
+    <script>
+        function UserDetails(event){
+            event.preventDefault();
+            const Name = event.target.name.value;
+            const Email = event.target.email.value;
+            const Phonenumber = event.target.number.value;
+           
+            const obj = {
+                Name,
+                Email,
+                Phonenumber
+            }
+            axios.post('http://localhost:3000/user/add-user', obj)
+            .then((response)=>{
+                DisplayOnScreen(response.data.newUserDetails)
+                console.log(response)
+            })
+            .catch((err)=>{
+                console.log(err)
+            })
+        }
+        window.addEventListener("DOMContentLoaded", (event) => {
+            axios.get('http://localhost:3000/user/get-user')
+            .then((response)=>{
+                console.log(response)
+                for(i=0;i<response.data.length;i++){
+                    DisplayOnScreen(response.data[i])
+                }
+            })
+            .catch((err)=>{
+                console.log(err)
+            })
+        })
+        function DisplayOnScreen(User){
+        const parentNode = document.getElementById("NumberOfUsers")
+        const childNode = `<li id=${User.id}>${User.Name}: Email Address-${User.Email}, Phone Number ${User.Phonenumber} 
+            <button onclick=deleteUser('${User.id}')> Delete </button></li>`
+        parentNode.innerHTML = parentNode.innerHTML + childNode
+        
+        }
+       
+        
+        function deleteUser(UserId){
+            axios.delete(`http://localhost:3000/user/delete-user/${UserId}`)
+            removeExpenseFromScreen(UserId);
+        }
+        function removeExpenseFromScreen(UserId){
+            const parentNode = document.getElementById('NumberOfUsers');
+            const childNodeToBeDeleted = document.getElementById(UserId);
+
+            parentNode.removeChild(childNodeToBeDeleted);
+        }
+    </script>
+   
+</body>
+</html>
